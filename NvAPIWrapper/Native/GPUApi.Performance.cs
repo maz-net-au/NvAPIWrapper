@@ -523,5 +523,34 @@ namespace NvAPIWrapper.Native
                 }
             }
         }
+
+        /// <summary>
+        ///     [PRIVATE]
+        ///     This function exists to force the P-State when SetPerformanceStates20 cannot.
+        ///     Works with Tesla P40 and T4, likely other TCC cards.
+        /// </summary>
+        /// <param name="physicalGPUHandle">GPU handle to get information about.</param>
+        /// <param name="pstate">The pstate you want to set. 0 is highest performance, 8 is low power, 16 is default</param>
+        /// <param name="int3">Not sure. I'm setting it to 2 for now and it seems to work.</param>
+        /// <exception cref="NVIDIAApiException">Status.InvalidArgument: gpuHandle is NULL</exception>
+        /// <exception cref="NVIDIAApiException">Status.ExpectedPhysicalGPUHandle: gpuHandle was not a physical GPU handle</exception>
+        public static void SetForcePstate(
+            PhysicalGPUHandle physicalGPUHandle,
+            int pstate,
+            int int3)
+        {
+            var status = DelegateFactory.GetDelegate<Delegates.GPU.NvAPI_GPU_SetForcePstate>()(
+                physicalGPUHandle,
+                pstate,
+                int3
+            );
+
+            if (status != Status.Ok)
+            {
+                throw new NVIDIAApiException(status);
+            }
+        }
+
+
     }
 }
